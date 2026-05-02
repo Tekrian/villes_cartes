@@ -1,5 +1,7 @@
 #include"Graph.hpp"
 
+#include <stdexcept>
+
 Graph::Graph(unsigned int nbr)
     : nb_villes(nbr)
 {
@@ -13,3 +15,20 @@ Graph::Graph(unsigned int nbr)
     }
 }
 
+Graph::~Graph(){
+
+}
+
+void Graph::ajouterChemin(unsigned int u, unsigned int v, double temps){
+    if(u < 0 || u >= nb_villes || v < 0 || v >= nb_villes)
+        throw std::out_of_range ("Identifiant de ville hors limite");
+    if(temps < 0)
+        throw std::out_of_range("Le temps ne peut pas être négatif");
+    
+        if(temps < w[u][v]) //pour garder le minimum coût pour le chemin
+        {
+            w[u][v] = w[v][u] = temps; // car c'est le même temps qui sépare deux ville donc Graphe non orienté
+            next[u][v] = v; // la prochaine ville de u à v zest v;
+            next[v][u] = u;
+        }
+}
