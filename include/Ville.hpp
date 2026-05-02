@@ -12,7 +12,7 @@ class Ville{
         double lng; // la longitude
 
     public :
-        Ville(const size_t, const std::string, const double, const double); //Constructeur de ville;
+        Ville(const unsigned int, const std::string, const double, const double); //Constructeur de ville;
         ~Ville(); //Destructeur de ville
 
         inline unsigned int getId() const {return id;}; //Accessuer de consultation qui permet de consulter l'id d'une ville
