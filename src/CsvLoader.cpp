@@ -1,4 +1,5 @@
 #include "CsvLoader.hpp"
+
 #include <sstream>
 #include <fstream>
 #include <stdexcept>
@@ -53,4 +54,28 @@ std::vector<Ville> CsvLoader::charger_villes() const{
 
     std::cout << villes.size() <<" villes ont été chargé depuis " << cheminVilles;
     return villes;    
+}
+
+void CsvLoader::charger_temps(Graph& g) const{
+    //la fonction qui ouvre temps.csv et ajoute les temps de route entre les chemins
+    std::ifstream file(cheminTemps);
+
+    if(!file.is_open())
+        throw std::runtime_error("Impossible d'ouvrir " + cheminTemps);
+    std::string ligne;
+    std::size_t nb_arete;
+    while(std::getline(file,ligne)){
+        if(!ligne.empty())
+            std::vector<std::string> cols = splitLigne(ligne);
+        
+        unsigned int id1 = std::stoi(cols[0]);
+        unsigned int id2 = std::stoi(cols[1]);
+        double tmps = std::stod(cols[2]);
+
+        //on ajoute l'arete entre les deux villes au graphe
+        g.ajouterChemin(id1, id2, tmps);
+        nb_arete++;
+    }
+    std::cout << nb_arete <<" arêtes ont été chargés depuis " << cheminTemps;
+    std::cout << std::endl;
 }
