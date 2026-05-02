@@ -21,7 +21,7 @@ Graph::~Graph(){
 
 void Graph::ajouterChemin(unsigned int u, unsigned int v, double temps){
     if(u < 0 || u >= nb_villes || v < 0 || v >= nb_villes)
-        throw std::out_of_range ("Identifiant de ville hors limite");
+        throw std::out_of_range ("Identifiant de ville hors limite dans ajouterChemin");
     if(temps < 0)
         throw std::out_of_range("Le temps ne peut pas être négatif");
     
@@ -49,4 +49,20 @@ void Graph::floydWarshall(){
             }
         }
     }
+}
+
+std::vector<unsigned int> Graph::getChemin(unsigned int u, unsigned int v) const{
+    //vérification des identifiants
+    if(u < 0 || u >= nb_villes || v < 0 || v >= nb_villes)
+        throw std::out_of_range ("Identifiant de ville hors limite dans ajouterChemin");
+    std::vector<unsigned int> chemin;
+    if(next[u][v] == -1)
+        return {};
+    unsigned int courrant = u;
+
+    while(courrant != v){
+        chemin.push_back(courrant);
+        courrant = next[courrant][v];
+    }
+    return chemin;
 }
