@@ -6,12 +6,6 @@ Ville::Ville(unsigned int _id, std::string _nom, double _lat, double _lng)
 
 } // Constructeur de la classe ville
 
-Ville::Ville(const Ville& src)
-    :Ville(src.id, src.nom, src.lat, src.lng)
-{
-
-}
-
 std::ostream& operator<<(std::ostream& os, const Ville& ville){
     os << "Ville [" << ville.id <<"] "
        << ville.nom
