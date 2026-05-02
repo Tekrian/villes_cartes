@@ -32,3 +32,21 @@ void Graph::ajouterChemin(unsigned int u, unsigned int v, double temps){
             next[v][u] = u;
         }
 }
+
+void Graph::floydWarshall(){
+    for(unsigned int k = 0; k < nb_villes; k++){ //k, la ville intermédiaire
+        for(unsigned int u = 0; u < nb_villes; u++){  //u est la ville de départ
+            for(unsigned int v = 0; v < nb_villes; v++){  //v:la ville d'arrivé
+
+                if(w[u][k] != inf && w[k][v] != inf){       //s'il existe de chemin intermédiare
+                    double min = w[u][k] + w[k][v];
+                    if(min < w[u][v]){                    // et que ce chemin est plus court,
+                        w[u][v] =  min;                    //ce chemin devient le noveau plus optimale
+                        next[u][v] = next[u][k];           // et on passe d'abord par cet intermédiaire
+                    }
+
+                }
+            }
+        }
+    }
+}
