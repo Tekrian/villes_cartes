@@ -25,7 +25,7 @@ class Graph {
                     throw std::out_of_range ("Identifiant de ville hors limite");
                 return w[u][v];
             };
-            std::vector<unsigned int> getChemin() const;
+            std::vector<unsigned int> getChemin(unsigned int u, unsigned int v) const;
             unsigned int getNombreVilles()const {return nb_villes;};
 };
 
