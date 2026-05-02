@@ -20,9 +20,13 @@ class Graph {
 
             void ajouterChemin(unsigned int, unsigned int, double); //fonction qui ajoute unChemin entre deux ville
             void floydWarshall(); //la fonction de l'algo de Floyd Warshall qui calcule le plus court chemin
-            double getTemps() const;
+            inline double getTemps(unsigned int u, unsigned int v) const{
+                if(u < 0 || u >= nb_villes || v < 0 || v >= nb_villes)
+                    throw std::out_of_range ("Identifiant de ville hors limite");
+                return w[u][v];
+            };
             std::vector<unsigned int> getChemin() const;
-            unsigned int getNombreVilles()const;
+            unsigned int getNombreVilles()const {return nb_villes;};
 };
 
 #endif
