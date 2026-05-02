@@ -6,14 +6,13 @@
 
 class Ville{
     private :
-        unsigned int id;
-        std::string nom;
-        double lat;
-        double lng;
+        unsigned int id; //identifiant d'une ville
+        std::string nom;   //le nom de la ville
+        double lat; // la latittude
+        double lng; // la longitude
 
     public :
         Ville(const size_t, const std::string, const double, const double); //Constructeur de ville;
-       Ville(const Ville&); //Constructeur par copie
         ~Ville(); //Destructeur de ville
 
         inline unsigned int getId() const {return id;}; //Accessuer de consultation qui permet de consulter l'id d'une ville
