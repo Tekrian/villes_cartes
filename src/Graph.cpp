@@ -66,3 +66,19 @@ std::vector<unsigned int> Graph::getChemin(unsigned int u, unsigned int v) const
     chemin.push_back(v); //on ajoute la ville d'arrivé à la fin du chemin
     return chemin;
 }
+
+std::vector<std::vector<double>> Graph::getMatriceTemps(const  std::vector<unsigned int>& id_villes) const{
+    
+    //Création et Initialisation de la matrice
+    std::vector<std::vector<double>> tableau_temps(id_villes.size(), std::vector<double>(id_villes.size(), 0.0));
+    // On cré un vecteur de ligne de id_villes.size(), initialisé à 0 et * id_villes.sizes colones
+   
+    for(size_t i =0; i < id_villes.size(); i++){
+        for(size_t j = 0; j < id_villes.size(); j++){
+            unsigned int u = id_villes[i];
+            unsigned int v = id_villes[j];
+            tableau_temps[i][j] = getTemps(u,v);
+        }
+    }
+    return tableau_temps;
+}

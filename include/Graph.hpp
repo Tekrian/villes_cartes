@@ -29,6 +29,9 @@ class Graph {
             };
             std::vector<unsigned int> getChemin(unsigned int u, unsigned int v) const;
             unsigned int getNombreVilles()const {return nb_villes;};
+
+            //Fontion qui construit un tableau de temps entre un ensemble de villes choisies
+            std::vector<std::vector<double>> getMatriceTemps(const std::vector<unsigned int>&) const;
 };
 
 #endif

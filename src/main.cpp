@@ -90,5 +90,18 @@ int main() {
     }
     std::cout << "\n";
 
+    // Test getTableau()
+    std::vector<unsigned int> selection = {94, 6, 48, 87}; // Paris, Marseille, Nice, Toulouse
+
+    std::vector<std::vector<double>> tab = g.getMatriceTemps(selection);
+
+    std::cout << "\n=== Tableau de temps ===\n";
+    for (int i = 0; i < (int)selection.size(); i++) {
+        for (int j = 0; j < (int)selection.size(); j++) {
+            std::cout << tab[i][j] << "\t";
+        }
+        std::cout << "\n";
+    }
+
     return 0;
 }
