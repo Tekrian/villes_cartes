@@ -1,0 +1,38 @@
+# ============================================================
+# .gitignore - Projet Temps de Route
+# ============================================================
+
+# --- Fichiers de compilation C++ ---
+*.o
+*.exe
+*.out
+prog.exe
+
+# --- Dossiers de build Qt ---
+ui/villes_routes/build/
+build/
+debug/
+release/
+
+# --- Fichiers générés par qmake ---
+*.pro.user
+*.pro.user.*
+Makefile
+.qmake.stash
+
+# --- Fichiers générés par CMake ---
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+
+# --- Fichiers temporaires éditeurs ---
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# --- Fichiers système ---
+.DS_Store        # macOS
+Thumbs.db        # Windows
+desktop.ini      # Windows
