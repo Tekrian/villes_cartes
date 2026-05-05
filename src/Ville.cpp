@@ -1,10 +1,15 @@
-#include "Ville.hpp"
+#include "../include/Ville.hpp"
 
 Ville::Ville(unsigned int _id, std::string _nom, double _lat, double _lng)
     : id(_id), nom(_nom), lat(_lat), lng(_lng)
 {
 
 } // Constructeur de la classe ville
+
+Ville::~Ville()
+{
+    
+}
 
 std::ostream& operator<<(std::ostream& os, const Ville& ville){
     os << "Ville [" << ville.id <<"] "

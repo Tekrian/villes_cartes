@@ -1,6 +1,4 @@
-#include"Graph.hpp"
-
-#include <stdexcept>
+#include"../include/Graph.hpp"
 
 Graph::Graph(unsigned int nbr)
     : nb_villes(nbr)
@@ -25,12 +23,12 @@ void Graph::ajouterChemin(unsigned int u, unsigned int v, double temps){
     if(temps < 0)
         throw std::out_of_range("Le temps ne peut pas être négatif");
     
-        if(temps < w[u][v]) //pour garder le minimum coût pour le chemin
-        {
+    if(temps < w[u][v]) //pour garder le minimum coût pour le chemin
+    {
             w[u][v] = w[v][u] = temps; // car c'est le même temps qui sépare deux ville donc Graphe non orienté
             next[u][v] = v; // la prochaine ville de u à v zest v;
             next[v][u] = u;
-        }
+    }
 }
 
 void Graph::floydWarshall(){
@@ -55,8 +53,9 @@ std::vector<unsigned int> Graph::getChemin(unsigned int u, unsigned int v) const
     //vérification des identifiants
     if(u < 0 || u >= nb_villes || v < 0 || v >= nb_villes)
         throw std::out_of_range ("Identifiant de ville hors limite dans ajouterChemin");
+
     std::vector<unsigned int> chemin;
-    if(next[u][v] == -1)
+    if(next[u][v] == -1) //Cas où il n'existe pas de chemin entre u et v
         return {};
     unsigned int courrant = u;
 
@@ -64,5 +63,6 @@ std::vector<unsigned int> Graph::getChemin(unsigned int u, unsigned int v) const
         chemin.push_back(courrant);
         courrant = next[courrant][v];
     }
+    chemin.push_back(v); //on ajoute la ville d'arrivé à la fin du chemin
     return chemin;
 }

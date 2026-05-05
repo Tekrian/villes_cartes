@@ -3,6 +3,8 @@
 
 #include <vector>
 #include <limits> //pour l'infini
+#include <stdexcept>
+
 
 const double inf = std::numeric_limits<double> ::infinity();
 
