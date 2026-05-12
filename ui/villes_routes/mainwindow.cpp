@@ -24,6 +24,13 @@ MainWindow::MainWindow(QWidget *parent)
     layoutTrajet->setSpacing(10);
     layoutPrincipal->addWidget(groupTrajet);
 
+    //création de la liste déroulante pour la ville de départ
+    comboBoxDepart = new QComboBox(this);
+    comboBoxDepart->setEditable(true); // Laisser le choix à l'utilisateur de saisir quand même
+    comboBoxDepart->setPlaceholderText("Saisir ou choisir une ville de départ");
+    layoutTrajet->addWidget(comboBoxDepart);
+
+
 
 }
 
