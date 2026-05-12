@@ -8,6 +8,7 @@
 #include <QGroupBox>
 #include <QComboBox>
 #include <QPushButton>
+#include <QLabel>
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -20,6 +21,7 @@ private :
     QComboBox *comboBoxDepart;
     QComboBox *comboBoxArivee;
     QPushButton *bouttonCalcul;
+    QLabel *labelResultat;
 
 public:
     explicit MainWindow(QWidget *parent = nullptr);
