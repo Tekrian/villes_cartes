@@ -24,13 +24,22 @@ MainWindow::MainWindow(QWidget *parent)
     layoutTrajet->setSpacing(10);
     layoutPrincipal->addWidget(groupTrajet);
 
-    //création de la liste déroulante pour la ville de départ
+    //création de la liste déroulante éditable pour la ville de départ
     comboBoxDepart = new QComboBox(this);
     comboBoxDepart->setEditable(true); // Laisser le choix à l'utilisateur de saisir quand même
     comboBoxDepart->setPlaceholderText("Saisir ou choisir une ville de départ");
     layoutTrajet->addWidget(comboBoxDepart);
 
+    //pour la ville d'arrivée
+    comboBoxArivee = new QComboBox(this);
+    comboBoxArivee->setEditable(true);
+    comboBoxArivee->setPlaceholderText("Saisir ou choisir une ville d'arrivée");
+    layoutTrajet->addWidget(comboBoxArivee);
 
+    //Ajout du boutton de calcul du trajet
+    bouttonCalcul = new QPushButton("Calculer le trajet", this);
+    bouttonCalcul->setStyleSheet("bacground-color : #2ecc71; color : white; font-weight: bold; border-radius: 5px");
+    layoutTrajet->addWidget(bouttonCalcul);
 
 }
 
