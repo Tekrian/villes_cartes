@@ -68,10 +68,71 @@ MainWindow::MainWindow(QWidget *parent)
         qDebug()<< "Erreur de chargement :" << e.what();
     }
 
+    //on cherche le plus court chemin avec l'algo de floydWarshall
+    g->floydWarshall();
+
 }
 
 void MainWindow::calculerTemps(){
-    labelResultat->setText("ça marche");
+    labelResultat->setStyleSheet("color: black"); // pOur rénitialiser la couleur du label après affichage d'un text en rouge pour les erreurs
+
+    //On récupère les text (les villes) sélectionnés dans dans combo box
+    QString villeDepart = comboBoxDepart->currentText();
+    QString villeArrivee = comboBoxArivee->currentText();
+
+    //Si les deux villes n'ont pas été sélectionnées
+    if(villeDepart.isEmpty() || villeArrivee.isEmpty()){
+        labelResultat->setText("Veuillez saisir une ville de départ et une ville d'arrivée");
+        labelResultat->setStyleSheet("color: #c0392b");
+        return; // la fonction s'arrête alors là
+    }
+
+    //les variables pour stockés les id des villes choisies
+    int idDepart = -1;
+    int idArrivee = -1;
+
+    for(const Ville& v : listeVilles){
+        if(QString::fromStdString(v.getNom()) == villeDepart)
+            idDepart = v.getId();
+        if(QString::fromStdString(v.getNom()) == villeArrivee)
+            idArrivee = v.getId();
+    }
+
+    //Si la ville saisie n'existe pas
+    if(idDepart == -1 || idArrivee == -1){
+        labelResultat->setText("Une ville saisie est introuvable");
+        labelResultat->setStyleSheet("color: #c0392b");
+        return; // on arrête alors la fonction ici
+    }
+    double tempsMinutes = g->getTemps(idDepart, idArrivee); // variable pour stocker le temps entre les deux ville en minutes
+
+    if(tempsMinutes == inf){
+        labelResultat->setText("Aucun itinéraire entre ces deux villes");
+        labelResultat->setStyleSheet("color: #c0392b");
+        return;
+    }
+    //conversion du temps sous forme  heure minutes
+    int heures = static_cast<int> (tempsMinutes)/60 ;
+    int minutes = static_cast<int> (tempsMinutes) % 60;
+
+    QString texteTemps = QString("Temps : %1h %2min").arg(heures).arg(minutes);
+    QString texteChemins = "Chemin : "; //variable pour stocker les chemins du trajet
+
+    std::vector<unsigned int> iDsChemins = g->getChemin(idDepart, idArrivee); // liste des iDs constituant le plus court chemin
+
+    // Boucle sur la liste pour l'affichage des chemins (le nom des villes) dans tetxteChemins avec -> (suivant)
+    for (size_t i = 0; i < iDsChemins.size(); i++){
+        unsigned int idCourrant = iDsChemins[i]; // l'id courrant
+        for(const Ville& v : listeVilles){
+            if(v.getId() == idCourrant)
+                texteChemins += QString::fromStdString(v.getNom());
+        }
+        if(i < iDsChemins.size() -1) //si ce n'est pas la dernière, on ajoute ->
+            texteChemins += " -> ";
+    }
+
+    labelResultat->setText(texteTemps + "\n" + texteChemins);
+
 }
 
 MainWindow::~MainWindow() = default;
