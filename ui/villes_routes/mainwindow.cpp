@@ -38,23 +38,40 @@ MainWindow::MainWindow(QWidget *parent)
 
     //Ajout du boutton de calcul du trajet
     bouttonCalcul = new QPushButton("Calculer le trajet", this);
-    bouttonCalcul->setStyleSheet("background-color : #2ecc71; font-weight: bold; border-radius: 5px");
+    bouttonCalcul->setStyleSheet("background-color : grey; font-weight: bold; border-radius: 5px");
     layoutTrajet->addWidget(bouttonCalcul);
 
     labelResultat = new QLabel("", this);
-    labelResultat->setStyleSheet(
-        "QLabel {"
-        "   background-color: #f8f9fa;"
-        "   border: 1px dashed #bdc3c7;"
-        "   border-radius: 5px;"
-        "   padding: 10px;"
-        "   font-size: 14px;"
-        "   color: #2c3e50;"
-        "}"
-        );
+
 
     layoutTrajet->addWidget(labelResultat);
 
+    connect(bouttonCalcul, SIGNAL(clicked(bool)), this, SLOT(calculerTemps()));
+
+    //Initialisation et chargement
+    g = new Graph(100); //on créé le graph pour les 100 villes
+    CsvLoader loader("../../../../data/villes.csv", "../../../../data/temps.csv");
+
+    try{
+        //on essaie de charger les données depuis villes.csv dans notre listeVilles
+        listeVilles = loader.charger_villes();
+
+        //on remplit le graphe g avec les arêtes (temps) chargées depuis temps.csv
+        loader.charger_temps(*g);
+
+        //on remplit les combo box par les noms des viles
+        for (const Ville &v : listeVilles){
+            comboBoxDepart->addItem(QString::fromStdString(v.getNom()));
+            comboBoxArivee->addItem(QString::fromStdString(v.getNom()));
+        }
+    } catch(const std::exception& e){
+        qDebug()<< "Erreur de chargement :" << e.what();
+    }
+
+}
+
+void MainWindow::calculerTemps(){
+    labelResultat->setText("ça marche");
 }
 
 MainWindow::~MainWindow() = default;

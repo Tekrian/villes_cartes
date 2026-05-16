@@ -27,7 +27,7 @@ std::vector<std::string> CsvLoader::splitLigne(const std::string& ligne) const{
 }
 
 std::vector<Ville> CsvLoader::charger_villes() const{
-    //la fonction qui ouvre villes.csv et créé une Ville pour chaque ligne
+    //la fonction qui charge les villes en ouvrant villes.csv et créé une Ville pour chaque ligne
     std::ifstream file(cheminVilles);
     
     if(!file.is_open())
@@ -59,7 +59,7 @@ std::vector<Ville> CsvLoader::charger_villes() const{
 }
 
 void CsvLoader::charger_temps(Graph& g) const{
-    //la fonction qui ouvre temps.csv et ajoute les temps de route entre les chemins
+    //la fonction qui charge les temps de route en ouvrant temps.csv et ajoute les arêtes au graphe
     std::ifstream file(cheminTemps);
 
     if(!file.is_open())

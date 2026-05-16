@@ -6,12 +6,21 @@ CONFIG += c++17
 # In order to do so, uncomment the following line.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
+#chemins de mes fichiers d'en-têtes
+INCLUDEPATH += ../../include
+
 SOURCES += \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    ../../src/CsvLoader.cpp \
+    ../../src/Graph.cpp \
+    ../../src/Ville.cpp
 
 HEADERS += \
-    mainwindow.h
+    mainwindow.h\
+    ../../include/CsvLoader.hpp \
+    ../../include/Graph.hpp \
+    ../../include/CsvLoader.hpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

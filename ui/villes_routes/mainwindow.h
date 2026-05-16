@@ -9,6 +9,14 @@
 #include <QComboBox>
 #include <QPushButton>
 #include <QLabel>
+
+#include <QDebug>
+
+#include "../../include/CsvLoader.hpp"
+#include "../../include/Graph.hpp"
+#include "../../include/Ville.hpp"
+
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -23,8 +31,14 @@ private :
     QPushButton *bouttonCalcul;
     QLabel *labelResultat;
 
+    Graph *g;
+    std::vector<Ville> listeVilles; //vecteur pour stockés les villes chargées
+
 public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow() override;
+
+private slots:
+    void calculerTemps(); // fonction qui va connecter le boutton de calcul
 };
 #endif // MAINWINDOW_H

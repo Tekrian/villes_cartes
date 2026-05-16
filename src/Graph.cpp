@@ -65,7 +65,8 @@ std::vector<unsigned int> Graph::getChemin(unsigned int u, unsigned int v) const
     }
     chemin.push_back(v); //on ajoute la ville d'arrivé à la fin du chemin
     return chemin;
-}
+}//la fonction qui retourne le chemin entre u et v en utilisant la matrice next
+
 
 std::vector<std::vector<double>> Graph::getMatriceTemps(const  std::vector<unsigned int>& id_villes) const{
     
@@ -81,4 +82,4 @@ std::vector<std::vector<double>> Graph::getMatriceTemps(const  std::vector<unsig
         }
     }
     return tableau_temps;
-}
+}//la fonction qui construit un tableau de temps entre un ensemble de villes choisies
