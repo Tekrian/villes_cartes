@@ -26,8 +26,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     //création de la liste déroulante éditable pour la ville de départ
     comboBoxDepart = new QComboBox(this);
-    comboBoxDepart->setEditable(true); // Laisser le choix à l'utilisateur de saisir quand même
     comboBoxDepart->setPlaceholderText("Saisir ou choisir une ville de départ");
+    comboBoxDepart->setEditable(true); // Laisser le choix à l'utilisateur de saisir quand même
     layoutTrajet->addWidget(comboBoxDepart);
 
     //pour la ville d'arrivée
@@ -71,7 +71,59 @@ MainWindow::MainWindow(QWidget *parent)
     //on cherche le plus court chemin avec l'algo de floydWarshall
     g->floydWarshall();
 
-}
+    //Tableau de temps
+    groupTableau = new QGroupBox("Tableau de temps", this);
+    QVBoxLayout *layoutTableau = new QVBoxLayout(groupTableau); //layout vertical interne à groupTableau
+    layoutTableau->setSpacing(10); // pour espacer les composants du tableau
+    layoutPrincipal->addWidget(groupTableau); //on ajoute le bloc du tableau dans le layout vertical principal
+
+    layoutOutilsTableau = new QHBoxLayout();
+
+    comboChoixVille = new QComboBox(this);
+    comboChoixVille->setPlaceholderText("Choisir une ville à ajouter ...");
+
+    //On remplie le combox avec les données (villes)
+    for(const Ville &v : listeVilles)
+        comboChoixVille->addItem(QString::fromStdString(v.getNom()));
+    layoutOutilsTableau->addWidget(comboChoixVille);
+
+    //Création du bouton +
+    boutonAjouter = new QPushButton("+", this);
+    boutonAjouter->setFixedWidth(40);
+    boutonAjouter->setStyleSheet("background-color: #2ecc71; font-weight: bold; color : white; ");
+    layoutOutilsTableau->addWidget(boutonAjouter);
+
+    //Création du bouton -
+    boutonSupprimer = new QPushButton("-", this);
+    boutonSupprimer->setFixedWidth(40);
+    boutonSupprimer->setStyleSheet("background-color: #e74c3c; font-weight: bold; color: white; ");
+    layoutOutilsTableau->addWidget(boutonSupprimer);
+
+    //border-radius: 5px
+    // boutonAjouter->setFixedSize(40, 40);
+    // boutonSupprimer->setFixedSize(40, 40);
+
+    layoutTableau->addLayout(layoutOutilsTableau);
+
+    //Création du QListWidget pour la liste des villes choisies
+    villesSelectionnees = new QListWidget(this);
+    layoutTableau->addWidget(villesSelectionnees);
+
+    //Création du bouton pour générer la matrice de temps
+    boutonGenererTableau = new QPushButton("Générer le tableau de temps", this);
+    boutonGenererTableau->setStyleSheet("background-color: #34495e; font-weight: bold; color : white; border-radius: 5px; min-height: 35px;");
+    layoutTableau->addWidget(boutonGenererTableau);
+
+    //Création de la matrice de temps
+    matriceTemps = new QTableWidget(this);
+    layoutTableau->addWidget(matriceTemps);
+
+    //les connect des 3 bouutons à leurs actions respectifs
+    connect(boutonAjouter, SIGNAL(clicked(bool)), this, SLOT(ajouterVilleListe()));
+    connect(boutonSupprimer, SIGNAL(clicked(bool)), this, SLOT(supprimerVilleListe()));
+    connect(boutonGenererTableau, SIGNAL(clicked(bool)), this, SLOT(genererTableauTemps()));
+}//Constructeur
+
 
 void MainWindow::calculerTemps(){
     labelResultat->setStyleSheet("color: black"); // pOur rénitialiser la couleur du label après affichage d'un text en rouge pour les erreurs
@@ -133,6 +185,103 @@ void MainWindow::calculerTemps(){
 
     labelResultat->setText(texteTemps + "\n" + texteChemins);
 
+}
+
+void MainWindow::ajouterVilleListe(){
+    QString nomVille =  comboChoixVille->currentText(); //on récupère le nom de la ville sélectionnée dans le combo box
+
+    if(nomVille.isEmpty())
+        return;
+
+    //On vérifie si la ville est déja dans la liste
+    for(int i =0; i < villesSelectionnees->count(); i++)
+        if(villesSelectionnees->item(i)->text() == nomVille) //item(i) qui récupere la ligne i et text() son text
+            return; //on ajoute pas si elle existe déja (on ne fait rien)
+
+    villesSelectionnees->addItem(nomVille);
+}
+
+void MainWindow::supprimerVilleListe(){
+    QListWidgetItem *ligneSelectionnee = villesSelectionnees->currentItem();
+    if(ligneSelectionnee != nullptr){
+        int ligne = villesSelectionnees->row(ligneSelectionnee);
+        delete villesSelectionnees->takeItem(ligne);
+    }
+}
+void MainWindow::genererTableauTemps(){
+    //On crée un vecteur pour stocker les IDs des villes sélectionnées
+    std::vector<unsigned int> idsSelectionnes;
+
+    //On parcourt le QListWidget pour retrouver l'id de chaque ville affichée
+    for (int i = 0; i < villesSelectionnees->count(); ++i) {
+        QString nomVille = villesSelectionnees->item(i)->text();
+
+        // On cherche cette ville dans notre vecteur global de villes pour récupérer son ID
+        for (const Ville& v : listeVilles)
+            if (QString::fromStdString(v.getNom()) == nomVille)
+                idsSelectionnes.push_back(v.getId());
+    }
+
+    //si l'utilisateur ne met aucune ville ou une seule, on ne fait rien
+    if (idsSelectionnes.size() < 2) {
+        return;
+    }
+
+    std::vector<std::vector<double>> matriceMinutes = g->getMatriceTemps(idsSelectionnes);
+
+    //On configure les dimensions de notre grille de composants Qt (QTableWidget)
+    int taille = idsSelectionnes.size();
+    matriceTemps->setRowCount(taille);    // Nombre de lignes
+    matriceTemps->setColumnCount(taille); // Nombre de colonnes
+
+    //On prépare les titres des lignes et des colonnes avec le nom des villes
+    QStringList listeNomsEnTetes;
+    for (int i = 0; i < taille; ++i) {
+        // On récupère le texte directement depuis la liste visuelle dans le même ordre
+        listeNomsEnTetes << villesSelectionnees->item(i)->text();
+    }
+
+    // On applique ces noms aux en-têtes du tableau
+    matriceTemps->setHorizontalHeaderLabels(listeNomsEnTetes);
+    matriceTemps->setVerticalHeaderLabels(listeNomsEnTetes);
+
+    //Double boucle pour remplir toutes les cellules
+    for (int i = 0; i < taille; ++i) {
+        for (int j = 0; j < taille; ++j) {
+            double minutesBrutes = matriceMinutes[i][j];
+            QString texteCellule;
+
+            // Si c'est la même ville (la diagonale de la matrice)
+            if (i == j) {
+                texteCellule = "0";
+            }
+            // Si la valeur est l'infini c'est qu'il n'y a aucun trajet possible
+            else if (minutesBrutes == inf) {
+                texteCellule = "-";
+            }
+            // Sinon, on convertit les minutes en format heure min
+            else {
+                int h = static_cast<int>(minutesBrutes) / 60;
+                int m = static_cast<int>(minutesBrutes) % 60;
+                if (h > 0) {
+                    texteCellule = QString("%1h %2m").arg(h).arg(m);
+                } else {
+                    texteCellule = QString("%1m").arg(m);
+                }
+            }
+
+            QTableWidgetItem* itemCellule = new QTableWidgetItem(texteCellule);
+
+            //On empêche l'utilisateur de modifier les chiffres du tableau au clavier
+            itemCellule->setFlags(itemCellule->flags() ^ Qt::ItemIsEditable);
+
+            // On centre le texte à l'intérieur de la cellule
+            itemCellule->setTextAlignment(Qt::AlignCenter);
+
+            // On injecte le composant dans la grille à la position (ligne i, colonne j)
+            matriceTemps->setItem(i, j, itemCellule);
+        }
+    }
 }
 
 MainWindow::~MainWindow() = default;
