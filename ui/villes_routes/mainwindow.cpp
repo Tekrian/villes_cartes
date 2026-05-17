@@ -7,8 +7,11 @@ MainWindow::MainWindow(QWidget *parent)
     // setMinimumSize(600, 700); //
 
     //Création du widget centarl
-    mainWidget = new QWidget(this);
-    setCentralWidget(mainWidget);
+    scrollArea = new QScrollArea(this);
+    scrollArea->setWidgetResizable(true); // pour s'adapter au contenu
+    setCentralWidget(scrollArea);
+    mainWidget = new QWidget();
+    scrollArea->setWidget(mainWidget);
 
     //layout vertical
     layoutPrincipal = new QVBoxLayout();
@@ -24,16 +27,16 @@ MainWindow::MainWindow(QWidget *parent)
     layoutTrajet->setSpacing(10);
     layoutPrincipal->addWidget(groupTrajet);
 
-    //création de la liste déroulante éditable pour la ville de départ
+    //création de la liste déroulante éditable pour la ville de départ          CHOIX VILLE
     comboBoxDepart = new QComboBox(this);
-    comboBoxDepart->setPlaceholderText("Saisir ou choisir une ville de départ");
     comboBoxDepart->setEditable(true); // Laisser le choix à l'utilisateur de saisir quand même
+    comboBoxDepart->lineEdit()->setPlaceholderText("Saisir ou choisir une ville de départ");
     layoutTrajet->addWidget(comboBoxDepart);
 
     //pour la ville d'arrivée
     comboBoxArivee = new QComboBox(this);
     comboBoxArivee->setEditable(true);
-    comboBoxArivee->setPlaceholderText("Saisir ou choisir une ville d'arrivée");
+    comboBoxArivee->lineEdit()->setPlaceholderText("Saisir ou choisir une ville d'arrivée");
     layoutTrajet->addWidget(comboBoxArivee);
 
     //Ajout du boutton de calcul du trajet
@@ -64,6 +67,8 @@ MainWindow::MainWindow(QWidget *parent)
             comboBoxDepart->addItem(QString::fromStdString(v.getNom()));
             comboBoxArivee->addItem(QString::fromStdString(v.getNom()));
         }
+        comboBoxDepart->setCurrentIndex(-1);    //Pour pouvoir afficher le placeHolder
+        comboBoxArivee->setCurrentIndex(-1);
     } catch(const std::exception& e){
         qDebug()<< "Erreur de chargement :" << e.what();
     }
@@ -80,11 +85,14 @@ MainWindow::MainWindow(QWidget *parent)
     layoutOutilsTableau = new QHBoxLayout();
 
     comboChoixVille = new QComboBox(this);
-    comboChoixVille->setPlaceholderText("Choisir une ville à ajouter ...");
+    comboChoixVille->setEditable(true);
+    comboChoixVille->lineEdit()->setPlaceholderText("Choisir une ville à ajouter ...");
+
 
     //On remplie le combox avec les données (villes)
     for(const Ville &v : listeVilles)
         comboChoixVille->addItem(QString::fromStdString(v.getNom()));
+    comboChoixVille->setCurrentIndex(-1);
     layoutOutilsTableau->addWidget(comboChoixVille);
 
     //Création du bouton +
@@ -116,6 +124,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     //Création de la matrice de temps
     matriceTemps = new QTableWidget(this);
+    matriceTemps->setEditTriggers(QAbstractItemView::NoEditTriggers); //Pour éviter que l'utilisateur ne puisse saisir dans la matrice
     layoutTableau->addWidget(matriceTemps);
 
     //les connect des 3 bouutons à leurs actions respectifs

@@ -4,7 +4,6 @@
 #include <QMainWindow>
 #include <QWidget>
 #include <QVBoxLayout>
-#include <QLabel>
 #include <QGroupBox>
 #include <QComboBox>
 #include <QPushButton>
@@ -12,13 +11,14 @@
 #include <QHBoxLayout>
 #include <QListWidget>
 #include <QTableWidget>
+#include <QLineEdit>
+#include <QScrollArea>
 
 #include <QDebug>
 
 #include "../../include/CsvLoader.hpp"
 #include "../../include/Graph.hpp"
 #include "../../include/Ville.hpp"
-#include <QGroupBox>
 
 
 class MainWindow : public QMainWindow
@@ -26,6 +26,8 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 private :
+    QScrollArea *scrollArea;
+
     QWidget *mainWidget; //Le conteneur principal
     QVBoxLayout *layoutPrincipal; // l'objet pour organiser les widgets verticalement
     QLabel *titre; //titre de l'application
