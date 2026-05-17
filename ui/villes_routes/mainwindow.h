@@ -48,14 +48,21 @@ private :
     Graph *g;
     std::vector<Ville> listeVilles; //vecteur pour stockés les villes chargées
 
+    QComboBox* comboTri;     // Trier par nom ou population
+    QComboBox* comboRegion;  // Filtrer par région
+
 public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow() override;
 
 private slots:
-    void calculerTemps(); // fonction qui va connecter le boutton de calcul
+    void calculerTemps(); // méthode qui va connecter le boutton de calcul
     void ajouterVilleListe();
     void supprimerVilleListe();
     void genererTableauTemps();
+
+    void mettreAJourComboBox(); //méthode pour mettre à jour les ComBox selon les tri et filtre
+    void trierVilles();// méthode qui sera appelé quand l'utilisateur change le tri
+    void filtrerParRegion(); // méthode qui sera appelé quand l'utilisateur change le filtre région
 };
 #endif // MAINWINDOW_H

@@ -1,7 +1,7 @@
 #include "../include/Ville.hpp"
 
-Ville::Ville(unsigned int _id, std::string _nom, double _lat, double _lng)
-    : id(_id), nom(_nom), lat(_lat), lng(_lng)
+Ville::Ville(unsigned int _id, std::string _nom, double _lat, double _lng, std::string _region, unsigned int _population)
+    : id(_id), nom(_nom), lat(_lat), lng(_lng), region(_region), population(_population)
 {
 
 } // Constructeur de la classe ville

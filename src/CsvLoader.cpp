@@ -47,8 +47,13 @@ std::vector<Ville> CsvLoader::charger_villes() const{
             std::string name = cols[0];
             double _lat = std::stod(cols[3]);   //cols[2] correspond à l'espace
             double _lng = std::stod(cols[4]);
+            std::string _region = cols[8];
+            unsigned int population  = 0;
+            // comme la population peutetre vide dans le csv, on vérifie avant de la convertir en entier
+            if (!cols[14].empty())
+                population = std::stoul(cols[14]);
 
-            Ville city(id, name, _lat, _lng); //création de la ville
+            Ville city(id, name, _lat, _lng, _region, population); //création de la ville
             villes.push_back(city);             //l'ajout de la ville créée au vecteur
         }
     }

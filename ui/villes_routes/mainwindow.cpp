@@ -27,6 +27,33 @@ MainWindow::MainWindow(QWidget *parent)
     layoutTrajet->setSpacing(10);
     layoutPrincipal->addWidget(groupTrajet);
 
+    // --- Ligne tri et filtre ---
+    QHBoxLayout* layoutFiltres = new QHBoxLayout();
+
+    // ComboBox pour choisir le tri
+    comboTri = new QComboBox();
+    comboTri->addItem("Trier par : Nom");
+    comboTri->addItem("Trier par : Population");
+    comboTri->setMinimumHeight(30);
+
+    // ComboBox pour filtrer par région
+    comboRegion = new QComboBox();
+    comboRegion->addItem("Toutes les régions"); // option par défaut
+    // On remplit avec les régions uniques du CSV
+    QStringList regions;
+    for (const Ville& v : listeVilles) {
+        QString r = QString::fromStdString(v.getRegion());
+        if (!r.isEmpty() && !regions.contains(r))
+            regions.append(r);
+    }
+    regions.sort();
+    comboRegion->addItems(regions);
+    comboRegion->setMinimumHeight(30);
+
+    layoutFiltres->addWidget(comboTri);
+    layoutFiltres->addWidget(comboRegion);
+    layoutTrajet->addLayout(layoutFiltres);
+
     //création de la liste déroulante éditable pour la ville de départ          CHOIX VILLE
     comboBoxDepart = new QComboBox(this);
     comboBoxDepart->setEditable(true); // Laisser le choix à l'utilisateur de saisir quand même
@@ -131,6 +158,9 @@ MainWindow::MainWindow(QWidget *parent)
     connect(boutonAjouter, SIGNAL(clicked(bool)), this, SLOT(ajouterVilleListe()));
     connect(boutonSupprimer, SIGNAL(clicked(bool)), this, SLOT(supprimerVilleListe()));
     connect(boutonGenererTableau, SIGNAL(clicked(bool)), this, SLOT(genererTableauTemps()));
+
+    connect(comboTri,     &QComboBox::currentIndexChanged, this, &MainWindow::trierVilles);
+    connect(comboRegion,  &QComboBox::currentIndexChanged, this, &MainWindow::filtrerParRegion);
 }//Constructeur
 
 
@@ -291,6 +321,62 @@ void MainWindow::genererTableauTemps(){
             matriceTemps->setItem(i, j, itemCellule);
         }
     }
+}
+
+// Met à jour les 3 ComboBox de villes selon tri et filtre actifs
+void MainWindow::mettreAJourComboBox() {
+
+    // Récupération du filtre région actif
+    QString regionChoisie = comboRegion->currentText();
+
+    // On filtre les villes selon la région
+    std::vector<Ville> villesFiltrees;
+    for (const Ville& v : listeVilles) {
+        QString r = QString::fromStdString(v.getRegion());
+        // "Toutes les régions" → on prend tout
+        if (regionChoisie == "Toutes les régions" || r == regionChoisie)
+            villesFiltrees.push_back(v);
+    }
+
+    // Tri selon le choix
+    if (comboTri->currentIndex() == 0) {
+        // Tri par nom alphabétique
+        std::sort(villesFiltrees.begin(), villesFiltrees.end(),
+                  [](const Ville& a, const Ville& b) {
+                      return a.getNom() < b.getNom();
+                  });
+    } else {
+        // Tri par population décroissante
+        std::sort(villesFiltrees.begin(), villesFiltrees.end(),
+                  [](const Ville& a, const Ville& b) {
+                      return a.getPopulation() > b.getPopulation();
+                  });
+    }
+
+    // Vidage et reremplissage des 3 ComboBox
+    comboBoxDepart->clear();
+    comboBoxArivee->clear();
+    comboChoixVille->clear();
+
+    for (const Ville& v : villesFiltrees) {
+        QString nom = QString::fromStdString(v.getNom());
+        comboBoxDepart->addItem(nom);
+        comboBoxArivee->addItem(nom);
+        comboChoixVille->addItem(nom);
+    }
+
+    // Réinitialisation des index
+    comboBoxDepart->setCurrentIndex(-1);
+    comboBoxArivee->setCurrentIndex(-1);
+    comboChoixVille->setCurrentIndex(-1);
+}
+
+void MainWindow::trierVilles() {
+    mettreAJourComboBox(); // Le tri a changé → on met à jour
+}
+
+void MainWindow::filtrerParRegion() {
+    mettreAJourComboBox(); // Le filtre a changé → on met à jour
 }
 
 MainWindow::~MainWindow() = default;
