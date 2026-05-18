@@ -13,6 +13,7 @@
 #include <QTableWidget>
 #include <QLineEdit>
 #include <QScrollArea>
+#include <QRadioButton>
 
 #include <QDebug>
 
@@ -45,11 +46,18 @@ private :
     QPushButton *boutonGenererTableau;
     QTableWidget *matriceTemps;
 
+    QRadioButton *radioSomme;
+    QRadioButton *radioMax;
+    QPushButton *boutonCalculerDepot;
+    QLabel *labelResultatDepot;
+
     Graph *g;
     std::vector<Ville> listeVilles; //vecteur pour stockés les villes chargées
 
     QComboBox* comboTri;     // Trier par nom ou population
     QComboBox* comboRegion;  // Filtrer par région
+
+    QPushButton *boutonQuitter; // Bouton pour fermer l'application
 
 public:
     explicit MainWindow(QWidget *parent = nullptr);
@@ -64,5 +72,7 @@ private slots:
     void mettreAJourComboBox(); //méthode pour mettre à jour les ComBox selon les tri et filtre
     void trierVilles();// méthode qui sera appelé quand l'utilisateur change le tri
     void filtrerParRegion(); // méthode qui sera appelé quand l'utilisateur change le filtre région
+
+    void trouverDepotOptimal();
 };
 #endif // MAINWINDOW_H

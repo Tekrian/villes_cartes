@@ -13,6 +13,23 @@ MainWindow::MainWindow(QWidget *parent)
     mainWidget = new QWidget();
     scrollArea->setWidget(mainWidget);
 
+    //Initialisation et chargement
+    g = new Graph(100); //on créé le graph pour les 100 villes
+    CsvLoader loader("../../../../data/villes.csv", "../../../../data/temps.csv");
+
+    try{
+        //on essaie de charger les données depuis villes.csv dans notre listeVilles
+        listeVilles = loader.charger_villes();
+
+        //on remplit le graphe g avec les arêtes (temps) chargées depuis temps.csv
+        loader.charger_temps(*g);
+    } catch(const std::exception& e){
+        qDebug()<< "Erreur de chargement :" << e.what();
+    }
+
+    //on cherche le plus court chemin avec l'algo de floydWarshall
+    g->floydWarshall();
+
     //layout vertical
     layoutPrincipal = new QVBoxLayout();
     mainWidget->setLayout(layoutPrincipal);
@@ -27,7 +44,7 @@ MainWindow::MainWindow(QWidget *parent)
     layoutTrajet->setSpacing(10);
     layoutPrincipal->addWidget(groupTrajet);
 
-    // --- Ligne tri et filtre ---
+    //Ligne tri et filtre
     QHBoxLayout* layoutFiltres = new QHBoxLayout();
 
     // ComboBox pour choisir le tri
@@ -68,7 +85,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     //Ajout du boutton de calcul du trajet
     bouttonCalcul = new QPushButton("Calculer le trajet", this);
-    bouttonCalcul->setStyleSheet("background-color : grey; font-weight: bold; border-radius: 5px");
+    bouttonCalcul->setStyleSheet("background-color : grey; border-radius: 5px");
     layoutTrajet->addWidget(bouttonCalcul);
 
     labelResultat = new QLabel("", this);
@@ -77,31 +94,6 @@ MainWindow::MainWindow(QWidget *parent)
     layoutTrajet->addWidget(labelResultat);
 
     connect(bouttonCalcul, SIGNAL(clicked(bool)), this, SLOT(calculerTemps()));
-
-    //Initialisation et chargement
-    g = new Graph(100); //on créé le graph pour les 100 villes
-    CsvLoader loader("../../../../data/villes.csv", "../../../../data/temps.csv");
-
-    try{
-        //on essaie de charger les données depuis villes.csv dans notre listeVilles
-        listeVilles = loader.charger_villes();
-
-        //on remplit le graphe g avec les arêtes (temps) chargées depuis temps.csv
-        loader.charger_temps(*g);
-
-        //on remplit les combo box par les noms des viles
-        for (const Ville &v : listeVilles){
-            comboBoxDepart->addItem(QString::fromStdString(v.getNom()));
-            comboBoxArivee->addItem(QString::fromStdString(v.getNom()));
-        }
-        comboBoxDepart->setCurrentIndex(-1);    //Pour pouvoir afficher le placeHolder
-        comboBoxArivee->setCurrentIndex(-1);
-    } catch(const std::exception& e){
-        qDebug()<< "Erreur de chargement :" << e.what();
-    }
-
-    //on cherche le plus court chemin avec l'algo de floydWarshall
-    g->floydWarshall();
 
     //Tableau de temps
     groupTableau = new QGroupBox("Tableau de temps", this);
@@ -115,11 +107,6 @@ MainWindow::MainWindow(QWidget *parent)
     comboChoixVille->setEditable(true);
     comboChoixVille->lineEdit()->setPlaceholderText("Choisir une ville à ajouter ...");
 
-
-    //On remplie le combox avec les données (villes)
-    for(const Ville &v : listeVilles)
-        comboChoixVille->addItem(QString::fromStdString(v.getNom()));
-    comboChoixVille->setCurrentIndex(-1);
     layoutOutilsTableau->addWidget(comboChoixVille);
 
     //Création du bouton +
@@ -134,10 +121,6 @@ MainWindow::MainWindow(QWidget *parent)
     boutonSupprimer->setStyleSheet("background-color: #e74c3c; font-weight: bold; color: white; ");
     layoutOutilsTableau->addWidget(boutonSupprimer);
 
-    //border-radius: 5px
-    // boutonAjouter->setFixedSize(40, 40);
-    // boutonSupprimer->setFixedSize(40, 40);
-
     layoutTableau->addLayout(layoutOutilsTableau);
 
     //Création du QListWidget pour la liste des villes choisies
@@ -146,7 +129,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     //Création du bouton pour générer la matrice de temps
     boutonGenererTableau = new QPushButton("Générer le tableau de temps", this);
-    boutonGenererTableau->setStyleSheet("background-color: #34495e; font-weight: bold; color : white; border-radius: 5px; min-height: 35px;");
+    boutonGenererTableau->setStyleSheet("background-color: #5d6d7e; font-weight: bold; color : white; border-radius: 5px; min-height: 35px;");
     layoutTableau->addWidget(boutonGenererTableau);
 
     //Création de la matrice de temps
@@ -161,6 +144,34 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(comboTri,     &QComboBox::currentIndexChanged, this, &MainWindow::trierVilles);
     connect(comboRegion,  &QComboBox::currentIndexChanged, this, &MainWindow::filtrerParRegion);
+
+    mettreAJourComboBox();
+
+    QHBoxLayout *layoutChoixOptimal = new QHBoxLayout;
+    radioSomme = new QRadioButton("Minimiser la somme des temps", this);
+    radioSomme->setChecked(true);
+    layoutChoixOptimal->addWidget(radioSomme);
+
+    radioMax = new QRadioButton("Minimiser le temps maximum", this);
+    layoutChoixOptimal->addWidget(radioMax);
+    layoutTableau->addLayout(layoutChoixOptimal);
+
+    boutonCalculerDepot = new QPushButton("Trouver l'emplacement du dépôt idéal", this);
+    boutonCalculerDepot->setStyleSheet("background-color: #7f8c8d; color: white; font-weight: bold; border-radius: 5px; min-height: 35px;");
+    layoutTableau->addWidget(boutonCalculerDepot);
+
+    labelResultatDepot = new QLabel("", this);
+    labelResultatDepot->setWordWrap(true);
+    layoutTableau->addWidget(labelResultatDepot);
+
+    connect(boutonCalculerDepot, SIGNAL(clicked(bool)), this, SLOT(trouverDepotOptimal()));
+
+    // Création du bouton Quitter
+    boutonQuitter = new QPushButton("Quitter l'application", this);
+    boutonQuitter->setStyleSheet("background-color: red;");
+    layoutPrincipal->addWidget(boutonQuitter);
+
+    connect(boutonQuitter, SIGNAL(clicked(bool)), this, SLOT(close()));
 }//Constructeur
 
 
@@ -372,11 +383,108 @@ void MainWindow::mettreAJourComboBox() {
 }
 
 void MainWindow::trierVilles() {
-    mettreAJourComboBox(); // Le tri a changé → on met à jour
+    mettreAJourComboBox(); //on met à jour lorsque le tri change
 }
 
 void MainWindow::filtrerParRegion() {
-    mettreAJourComboBox(); // Le filtre a changé → on met à jour
+    mettreAJourComboBox(); // Le filtre a changé, on met à jour
+}
+
+void MainWindow::trouverDepotOptimal() {
+    // Réinitialisation du style pour effacer les anciens affichages
+    labelResultatDepot->setStyleSheet("color: black; background-color: none; border: none;");
+
+    // 1. Extraction des IDs des villes cibles depuis le QListWidget
+    std::vector<unsigned int> villesCibles; //vecteur pour stocker les id des villes sélectionnées
+    for (int i = 0; i < villesSelectionnees->count(); ++i) {
+        QString nomVilleCible = villesSelectionnees->item(i)->text();
+
+        //on cherche cette ville dans notre liste globale pour récupérer son id
+        for (const Ville& v : listeVilles) 
+            if (QString::fromStdString(v.getNom()) == nomVilleCible) 
+                villesCibles.push_back(v.getId());
+        
+    }
+
+    // on vérifie que la liste des villes ciblées n'est pas vide
+    if (villesCibles.empty()) {
+        labelResultatDepot->setText("Erreur : Veuillez ajouter des villes dans la liste pour effectuer le calcul.");
+        labelResultatDepot->setStyleSheet("color: #c0392b;");
+        return;
+    }
+
+    int idMeilleurDepot = -1; // variable pour stocker l'id du meilleur depot
+    double meilleurScore = -1.0; // variable pour stocker le score du meilleur depot (soit la somme des temps, soit le temps max)
+
+    //on parcours de tous les sommets pour évaluer chaque ville comme depot candidat
+    for (const Ville& depotCandidat : listeVilles) {
+        unsigned int idCandidat = depotCandidat.getId();
+        double scoreCandidat = 0.0;
+        bool cheminImpossible = false;
+
+        // evaluation de la distance du candidat courant vers toutes les cibles
+        for (unsigned int idCible : villesCibles) {
+            double temps = g->getTemps(idCandidat, idCible);
+
+            //lorsqu'il n'existe pas de chemin,
+            if (temps == inf) {
+                cheminImpossible = true;    //on marque cette ville comme un candidat impossible
+                break; // et on arrête d'évaluer cette ville
+            }
+
+            // selon la stratégie choisie par l'utilisateur, on met à jour le score du candidat
+            if (radioMax->isChecked()) {
+                // minimisation du temps maximum,
+                if (temps > scoreCandidat) {
+                    scoreCandidat = temps;
+                }
+            } else {
+                //minimisation de la somme des temps
+                scoreCandidat += temps;
+            }
+        }
+
+        if (!cheminImpossible) {           
+
+            // Recherche du minimum dans toutes les villes
+            if (meilleurScore == -1.0 || scoreCandidat < meilleurScore) {
+                meilleurScore = scoreCandidat;
+                idMeilleurDepot = idCandidat;
+            }
+        }
+    }
+
+    //si aucun ville candidate n'est valide (pas de chemin vers au moins une cible),
+    if (idMeilleurDepot == -1) {
+        labelResultatDepot->setText("Erreur : Aucun dépôt ne peut desservir l'ensemble de ces villes.");
+        labelResultatDepot->setStyleSheet("color: #c0392b;");
+        return;
+    }
+
+    //recuperation du nom de la ville correspondant à l'id optimal
+    QString nomMeilleurDepot;
+    for (const Ville& v : listeVilles) {
+        if (v.getId() == static_cast<unsigned int>(idMeilleurDepot)) {
+            nomMeilleurDepot = QString::fromStdString(v.getNom());
+        }
+    }
+
+    //Conversion des minutes en format heures minutes
+    int h = static_cast<int>(meilleurScore) / 60;
+    int m = static_cast<int>(meilleurScore) % 60;
+    QString texteDuree = (h > 0) ? QString("%1h %2min").arg(h).arg(m) : QString("%1min").arg(m);
+
+    // on affiche le resultat selon la strategie choisie par l'utilisateur
+    QString messageFinal;
+    if (radioMax->isChecked()) {
+        messageFinal = QString("Emplacement optimal : %1\n(Temps maximum : %2)")
+        .arg(nomMeilleurDepot).arg(texteDuree);
+    } else {
+        messageFinal = QString("Emplacement optimal : %1\n(Somme cumulée des temps de trajet : %2)")
+                           .arg(nomMeilleurDepot).arg(texteDuree);
+    }
+
+    labelResultatDepot->setText(messageFinal);
 }
 
 MainWindow::~MainWindow() = default;
