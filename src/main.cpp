@@ -2,7 +2,7 @@
 #include <vector>
 #include "../include/Graph.hpp"
 #include "../include/Ville.hpp"
-#include "../include/CsvLoader.hpp
+#include "../include/CsvLoader.hpp"
 void afficherTemps(double minutes) {
     if (minutes == inf) {
         std::cout << "Aucun chemin trouvé";
