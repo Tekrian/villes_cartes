@@ -2,13 +2,7 @@
 #include <vector>
 #include "../include/Graph.hpp"
 #include "../include/Ville.hpp"
-#include "../include/CsvLoader.hpp"
-
-/*
- * Fonction utilitaire : affiche un temps en heures et minutes
- * Exemple : 137 minutes → "2h 17min"
- * On utilise "inf" (minuscule) car c'est le nom défini dans Graph.hpp
- */
+#include "../include/CsvLoader.hpp
 void afficherTemps(double minutes) {
     if (minutes == inf) {
         std::cout << "Aucun chemin trouvé";
